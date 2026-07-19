@@ -45,23 +45,23 @@ export default function AuthView({ onAuthSuccess }) {
         <div className="auth-header">
           <h2>{mode === 'login' ? 'Welcome to QuickShopp' : 'Join QuickShopp Ecosystem'}</h2>
           <p id="auth-subtitle">
-            {mode === 'login' 
-              ? 'Log in to order fresh meals, groceries, and more.' 
+            {mode === 'login'
+              ? 'Log in to order fresh meals, groceries, and more.'
               : 'Create an account to start buying, selling, or delivering.'}
           </p>
         </div>
 
         <div className="auth-tabs">
-          <button 
+          <button
             type="button"
-            className={`auth-toggle ${mode === 'login' ? 'active' : ''}`} 
+            className={`auth-toggle ${mode === 'login' ? 'active' : ''}`}
             onClick={() => setMode('login')}
           >
             Log In
           </button>
-          <button 
+          <button
             type="button"
-            className={`auth-toggle ${mode === 'signup' ? 'active' : ''}`} 
+            className={`auth-toggle ${mode === 'signup' ? 'active' : ''}`}
             onClick={() => setMode('signup')}
           >
             Sign Up
@@ -73,10 +73,10 @@ export default function AuthView({ onAuthSuccess }) {
           {mode === 'signup' && (
             <div className="form-group" id="group-signup-name">
               <label htmlFor="auth-name">Full Name</label>
-              <input 
-                type="text" 
-                id="auth-name" 
-                className="form-control" 
+              <input
+                type="text"
+                id="auth-name"
+                className="form-control"
                 placeholder="Enter your full name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
@@ -88,28 +88,28 @@ export default function AuthView({ onAuthSuccess }) {
           {/* Email */}
           <div className="form-group">
             <label htmlFor="auth-email">Email Address</label>
-            <input 
-              type="email" 
-              id="auth-email" 
-              className="form-control" 
-              placeholder="name@domain.com" 
+            <input
+              type="email"
+              id="auth-email"
+              className="form-control"
+              placeholder="name@domain.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              required 
+              required
             />
           </div>
 
           {/* Password */}
           <div className="form-group">
             <label htmlFor="auth-password">Password</label>
-            <input 
-              type="password" 
-              id="auth-password" 
-              className="form-control" 
-              placeholder="••••••••" 
+            <input
+              type="password"
+              id="auth-password"
+              className="form-control"
+              placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              required 
+              required
             />
           </div>
 
@@ -117,14 +117,14 @@ export default function AuthView({ onAuthSuccess }) {
           {mode === 'signup' && (
             <div className="form-group" id="group-signup-phone">
               <label htmlFor="auth-phone">Mobile Number</label>
-              <input 
-                type="tel" 
-                id="auth-phone" 
-                className="form-control" 
-                placeholder="+919876543210" 
+              <input
+                type="tel"
+                id="auth-phone"
+                className="form-control"
+                placeholder="+919876543210"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                required 
+                required
               />
             </div>
           )}
@@ -134,8 +134,8 @@ export default function AuthView({ onAuthSuccess }) {
             <div className="form-group" id="group-signup-role">
               <label>Register As</label>
               <div className="role-selector-grid">
-                <div 
-                  className={`role-card-opt ${role === 'customer' ? 'selected' : ''}`} 
+                <div
+                  className={`role-card-opt ${role === 'customer' ? 'selected' : ''}`}
                   onClick={() => setRole('customer')}
                 >
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -144,8 +144,8 @@ export default function AuthView({ onAuthSuccess }) {
                   </svg>
                   <span>Customer</span>
                 </div>
-                <div 
-                  className={`role-card-opt ${role === 'shopkeeper' ? 'selected' : ''}`} 
+                <div
+                  className={`role-card-opt ${role === 'shopkeeper' ? 'selected' : ''}`}
                   onClick={() => setRole('shopkeeper')}
                 >
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -154,8 +154,8 @@ export default function AuthView({ onAuthSuccess }) {
                   </svg>
                   <span>Shopkeeper</span>
                 </div>
-                <div 
-                  className={`role-card-opt ${role === 'delivery' ? 'selected' : ''}`} 
+                <div
+                  className={`role-card-opt ${role === 'delivery' ? 'selected' : ''}`}
                   onClick={() => setRole('delivery')}
                 >
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -176,11 +176,11 @@ export default function AuthView({ onAuthSuccess }) {
         </form>
 
         <p id="auth-helper-text" className="auth-helper-text" style={{ marginTop: '1.5rem', fontSize: '0.8rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
-          {mode === 'login' ? (
-            <>Tip: Use <strong>admin@swiftdrop.com</strong> / <strong>admin123</strong> to login as administrator.</>
-          ) : (
-            <>Become a QuickShopp member today and get instant deliveries.</>
-          )}
+          {mode === 'login' ?
+            <></>
+            : (
+              <>Become a QuickShopp member today and get instant deliveries.</>
+            )}
         </p>
       </div>
     </section>
