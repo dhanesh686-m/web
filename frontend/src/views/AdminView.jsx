@@ -33,7 +33,6 @@ export default function AdminView({ currentUser, onSelfSuspended }) {
     try {
       const data = await apiCall(`/api/admin/users/${userId}`, 'PATCH');
       
-      // Auto logout if currently active user session is suspended by admin
       if (currentUser.id === userId && data.status === 'suspended') {
         onSelfSuspended();
         alert("Your account has been deactivated by the platform administrator. Logging out.");
@@ -95,7 +94,7 @@ export default function AdminView({ currentUser, onSelfSuspended }) {
           </div>
           <div className="metric-details">
             <h4>Gross Revenue</h4>
-            <div className="metric-value" id="admin-stats-revenue">${Number(stats?.revenue || 0).toFixed(2)}</div>
+            <div className="metric-value" id="admin-stats-revenue">₹{Number(stats?.revenue || 0).toFixed(2)}</div>
           </div>
         </div>
         <div className="metric-card">
@@ -197,7 +196,7 @@ export default function AdminView({ currentUser, onSelfSuspended }) {
                     <td className="order-id" style={{ fontSize: '0.85rem' }}>{(order._id || order.id).toUpperCase()}</td>
                     <td>{order.shop_name}</td>
                     <td>{order.customer_name}</td>
-                    <td style={{ fontWeight: 700 }}>${Number(order.total).toFixed(2)}</td>
+                    <td style={{ fontWeight: 700 }}>₹{Number(order.total).toFixed(2)}</td>
                     <td>{order.delivery_boy_name || <em style={{ color: 'var(--text-muted)' }}>Waiting rider...</em>}</td>
                     <td><span className={`badge ${getStatusBadgeClass(order.status)}`}>{order.status}</span></td>
                   </tr>

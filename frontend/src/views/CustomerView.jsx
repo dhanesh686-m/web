@@ -151,7 +151,7 @@ export default function CustomerView() {
   // Helper stats
   const cartItemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
   const cartSubtotal = cart.reduce((sum, item) => sum + (item.item.price * item.quantity), 0);
-  const deliveryFee = cart.length > 0 ? 3.50 : 0.00;
+  const deliveryFee = cart.length > 0 ? 50.00 : 0.00; // Flat ₹50.00 Delivery Fee
   const cartTotal = cartSubtotal + deliveryFee;
 
   const getStatusBadgeClass = (status) => {
@@ -262,11 +262,15 @@ export default function CustomerView() {
               ) : (
                 <div className="items-grid" id="items-list-container">
                   {items.map(item => {
+                    const itemId = item._id || item.id;
                     const isLowStock = item.quantity <= 5;
                     const isOutOfStock = item.quantity === 0;
 
+                    // Check if this product is already inside the cart
+                    const cartItem = cart.find(c => (c.item._id || c.item.id) === itemId);
+
                     return (
-                      <div className="item-card" key={item._id || item.id}>
+                      <div className="item-card" key={itemId}>
                         <div className="item-image" style={{ backgroundImage: `url('${item.image || 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=80&w=300'}')` }}></div>
                         <div className="item-info">
                           <div>
@@ -275,18 +279,30 @@ export default function CustomerView() {
                           </div>
                           <div>
                             <div className="item-purchase-row mb-4">
-                              <span className="item-price">${Number(item.price).toFixed(2)}</span>
+                              <span className="item-price">₹{Number(item.price).toFixed(2)}</span>
                               <span className={`item-stock ${isLowStock ? 'low' : ''}`}>
                                 {isOutOfStock ? 'OUT OF STOCK' : (isLowStock ? `Only ${item.quantity} left!` : `${item.quantity} In Stock`)}
                               </span>
                             </div>
-                            <button 
-                              className="btn btn-primary btn-full btn-sm" 
-                              onClick={() => handleAddToCart(item._id || item.id)}
-                              disabled={isOutOfStock}
-                            >
-                              {isOutOfStock ? 'Unavailable' : 'Add to Cart'}
-                            </button>
+                            
+                            {/* Inline Cart Quantity Selector or Add Button */}
+                            {cartItem ? (
+                              <div className="cart-item-quantity" style={{ display: 'flex', justifyContent: 'center', width: '100%', padding: '0.4rem', border: '1px dashed var(--primary)', borderRadius: 'var(--radius-sm)' }}>
+                                <button className="qty-btn" onClick={() => handleUpdateCartQty(itemId, -1)}>-</button>
+                                <span className="qty-val" style={{ margin: '0 1rem', alignSelf: 'center', fontWeight: '800', color: 'var(--primary)' }}>
+                                  {cartItem.quantity} added
+                                </span>
+                                <button className="qty-btn" onClick={() => handleUpdateCartQty(itemId, 1)}>+</button>
+                              </div>
+                            ) : (
+                              <button 
+                                className="btn btn-primary btn-full btn-sm" 
+                                onClick={() => handleAddToCart(itemId)}
+                                disabled={isOutOfStock}
+                              >
+                                {isOutOfStock ? 'Unavailable' : 'Add to Cart'}
+                              </button>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -328,24 +344,36 @@ export default function CustomerView() {
 
                   if (order.status === 'preparing') {
                     progressPercent = 40;
-                    step2 = 'active';
-                    step1 = 'completed';
+                    setStepValues('preparing');
                   } else if (order.status === 'ready') {
                     progressPercent = 70;
-                    step2 = 'completed';
-                    step3 = 'active';
+                    setStepValues('ready');
                   } else if (order.status === 'delivering') {
                     progressPercent = 85;
-                    step2 = 'completed';
-                    step3 = 'completed';
-                    step4 = 'active';
+                    setStepValues('delivering');
                   } else if (order.status === 'delivered') {
                     progressPercent = 100;
-                    step2 = 'completed';
-                    step3 = 'completed';
-                    step4 = 'completed';
+                    setStepValues('delivered');
                   } else {
                     step1 = 'active';
+                  }
+
+                  function setStepValues(status) {
+                    if (status === 'preparing') {
+                      step2 = 'active';
+                      step1 = 'completed';
+                    } else if (status === 'ready') {
+                      step2 = 'completed';
+                      step3 = 'active';
+                    } else if (status === 'delivering') {
+                      step2 = 'completed';
+                      step3 = 'completed';
+                      step4 = 'active';
+                    } else if (status === 'delivered') {
+                      step2 = 'completed';
+                      step3 = 'completed';
+                      step4 = 'completed';
+                    }
                   }
 
                   const riderInfo = order.delivery_boy_name ? `${order.delivery_boy_name} is delivering` : 'Assigning Courier...';
@@ -371,7 +399,7 @@ export default function CustomerView() {
                             {order.items.map((it, idx) => (
                               <li key={idx}>
                                 <span>{it.name} (x{it.quantity})</span>
-                                <span>${(Number(it.price) * it.quantity).toFixed(2)}</span>
+                                <span>₹{(Number(it.price) * it.quantity).toFixed(2)}</span>
                               </li>
                             ))}
                           </ul>
@@ -379,7 +407,7 @@ export default function CustomerView() {
                         <div className="order-meta-info">
                           <div>Address: <span>{order.address}</span></div>
                           <div>Courier: <span>{riderInfo}</span></div>
-                          <div>Total Invoiced: <span style={{ color: 'var(--secondary)', fontSize: '1.1rem' }}>${Number(order.total).toFixed(2)}</span></div>
+                          <div>Total Invoiced: <span style={{ color: 'var(--secondary)', fontSize: '1.1rem' }}>₹{Number(order.total).toFixed(2)}</span></div>
                         </div>
                       </div>
 
@@ -445,7 +473,7 @@ export default function CustomerView() {
                 <div className="cart-item" key={cartItem.item._id || cartItem.item.id}>
                   <div className="cart-item-details">
                     <span className="cart-item-name">{cartItem.item.name}</span>
-                    <span className="cart-item-price">${Number(cartItem.item.price).toFixed(2)}</span>
+                    <span className="cart-item-price">₹{Number(cartItem.item.price).toFixed(2)}</span>
                   </div>
                   <div className="cart-item-quantity">
                     <button className="qty-btn" onClick={() => handleUpdateCartQty(cartItem.item._id || cartItem.item.id, -1)}>-</button>
@@ -473,15 +501,15 @@ export default function CustomerView() {
 
             <div className="cart-summary-row">
               <span style={{ color: 'var(--text-secondary)' }}>Subtotal</span>
-              <span id="cart-subtotal">${cartSubtotal.toFixed(2)}</span>
+              <span id="cart-subtotal">₹{cartSubtotal.toFixed(2)}</span>
             </div>
             <div className="cart-summary-row">
               <span style={{ color: 'var(--text-secondary)' }}>Delivery Fee</span>
-              <span id="cart-delivery-fee">${deliveryFee.toFixed(2)}</span>
+              <span id="cart-delivery-fee">₹{deliveryFee.toFixed(2)}</span>
             </div>
             <div className="cart-summary-row total">
               <span>Estimated Total</span>
-              <span id="cart-total">${cartTotal.toFixed(2)}</span>
+              <span id="cart-total">₹{cartTotal.toFixed(2)}</span>
             </div>
 
             <button 

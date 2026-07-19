@@ -6,6 +6,7 @@ export default function AuthView({ onAuthSuccess }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
   const [role, setRole] = useState('customer'); // 'customer', 'shopkeeper', 'delivery'
 
   const handleSubmit = async (e) => {
@@ -16,6 +17,7 @@ export default function AuthView({ onAuthSuccess }) {
           name: name.trim() || 'New User',
           email,
           password,
+          phone: phone.trim(),
           role
         });
         onAuthSuccess(user);
@@ -30,6 +32,7 @@ export default function AuthView({ onAuthSuccess }) {
       setEmail('');
       setPassword('');
       setName('');
+      setPhone('');
       setRole('customer');
     } catch (err) {
       console.error(err);
@@ -109,6 +112,22 @@ export default function AuthView({ onAuthSuccess }) {
               required 
             />
           </div>
+
+          {/* Phone Number (Only visible during Signup) */}
+          {mode === 'signup' && (
+            <div className="form-group" id="group-signup-phone">
+              <label htmlFor="auth-phone">Mobile Number</label>
+              <input 
+                type="tel" 
+                id="auth-phone" 
+                className="form-control" 
+                placeholder="+919876543210" 
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                required 
+              />
+            </div>
+          )}
 
           {/* Role Selector (Only visible during Signup) */}
           {mode === 'signup' && (

@@ -76,7 +76,7 @@ export default function ProductModal({ isOpen, item, onClose, onSubmit }) {
 
           <div className="form-row flex gap-4 w-full" style={{ display: 'flex', gap: '1rem' }}>
             <div className="form-group flex-1" style={{ flex: 1 }}>
-              <label htmlFor="modal-item-price">Price ($)</label>
+              <label htmlFor="modal-item-price">Price (₹)</label>
               <input 
                 type="number" 
                 id="modal-item-price" 

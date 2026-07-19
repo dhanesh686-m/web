@@ -24,7 +24,6 @@ export default function ShopkeeperView({ currentUser }) {
   const fetchDashboardData = async () => {
     setLoading(true);
     try {
-      // Find shop affiliated with current user
       const allShops = await apiCall('/api/shops');
       const userShop = allShops.find(s => s.owner_id === currentUser.id);
       if (!userShop) {
@@ -38,7 +37,6 @@ export default function ShopkeeperView({ currentUser }) {
       setStoreDesc(userShop.description || '');
       setStoreBanner(userShop.image || '');
 
-      // Load orders and items details from server
       const userOrders = await apiCall('/api/orders');
       setOrders(userOrders);
 
@@ -141,7 +139,7 @@ export default function ShopkeeperView({ currentUser }) {
       </div>
 
       <div className="shopkeeper-panel-split">
-        {/* Shop Details Configuration Form */}
+        {/* Shop Profile Configuration */}
         <div className="glass-panel" style={{ padding: '1.5rem', height: 'fit-content' }}>
           <h3 className="mb-4" style={{ fontSize: '1.15rem', fontWeight: 700 }}>Store Profile</h3>
           <form onSubmit={handleSaveProfile}>
@@ -210,7 +208,7 @@ export default function ShopkeeperView({ currentUser }) {
               </div>
               <div className="metric-details">
                 <h4>Total Sales</h4>
-                <div className="metric-value" id="shop-stats-sales">${totalSales.toFixed(2)}</div>
+                <div className="metric-value" id="shop-stats-sales">₹{totalSales.toFixed(2)}</div>
               </div>
             </div>
             <div className="metric-card">
@@ -294,7 +292,7 @@ export default function ShopkeeperView({ currentUser }) {
                           <td className="order-id" style={{ fontSize: '0.85rem' }}>{(order._id || order.id).toUpperCase()}</td>
                           <td>{itemsStr}</td>
                           <td>{order.address}</td>
-                          <td style={{ fontWeight: 700 }}>${Number(order.subtotal || 0).toFixed(2)}</td>
+                          <td style={{ fontWeight: 700 }}>₹{Number(order.subtotal || 0).toFixed(2)}</td>
                           <td><span className={`badge ${getStatusBadgeClass(order.status)}`}>{order.status}</span></td>
                           <td style={{ textAlign: 'right' }}>{actionBtn}</td>
                         </tr>
@@ -306,7 +304,7 @@ export default function ShopkeeperView({ currentUser }) {
             </div>
           </div>
 
-          {/* Product Inventory Manager */}
+          {/* Product Catalog Directory */}
           <div className="glass-panel">
             <div className="flex justify-between align-center mb-4" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <h3 style={{ fontSize: '1.25rem', fontWeight: 700 }}>Catalog Directory</h3>
@@ -344,7 +342,7 @@ export default function ShopkeeperView({ currentUser }) {
                         </td>
                         <td style={{ fontWeight: 600 }}>{item.name}</td>
                         <td style={{ maxWidth: '250px', fontSize: '0.85rem', color: 'var(--text-secondary)', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>{item.description}</td>
-                        <td style={{ fontWeight: 700, color: 'var(--secondary)' }}>${Number(item.price).toFixed(2)}</td>
+                        <td style={{ fontWeight: 700, color: 'var(--secondary)' }}>₹{Number(item.price).toFixed(2)}</td>
                         <td>{item.quantity} units</td>
                         <td style={{ textAlign: 'right' }}>
                           <div className="flex gap-2 justify-end" style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>

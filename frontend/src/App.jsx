@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Header from './components/Header';
+import SmsSimulator from './components/SmsSimulator';
 import AuthView from './views/AuthView';
 import CustomerView from './views/CustomerView';
 import ShopkeeperView from './views/ShopkeeperView';
@@ -8,7 +9,7 @@ import AdminView from './views/AdminView';
 
 export default function App() {
   const [currentUser, setCurrentUser] = useState(null);
-  const [dashboardKey, setDashboardKey] = useState(0); // Useful for force-reloading dashboards
+  const [dashboardKey, setDashboardKey] = useState(0);
 
   useEffect(() => {
     checkLoginSession();
@@ -32,7 +33,6 @@ export default function App() {
   };
 
   const handleBrandClick = () => {
-    // Force reload active dashboard on logo click
     setDashboardKey(prev => prev + 1);
   };
 
@@ -65,6 +65,9 @@ export default function App() {
       <main style={{ flex: 1, padding: '2rem' }}>
         {renderActiveDashboard()}
       </main>
+      
+      {/* Global In-App SMS Mobile Phone Simulator for free testing */}
+      <SmsSimulator currentUser={currentUser} />
     </div>
   );
 }

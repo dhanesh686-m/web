@@ -26,7 +26,6 @@ export default function DeliveryView({ currentUser }) {
   };
 
   const handleToggleDuty = async (checked) => {
-    // If going offline, verify no active deliveries first
     if (!checked) {
       try {
         const data = await apiCall('/api/orders');
@@ -68,7 +67,7 @@ export default function DeliveryView({ currentUser }) {
   // Stats calculation
   const myOrders = orders.filter(o => o.delivery_boy_id === currentUser.id);
   const completedTrips = myOrders.filter(o => o.status === 'delivered').length;
-  const totalEarnings = completedTrips * 5.00;
+  const totalEarnings = completedTrips * 50.00; // Flat ₹50.00 payout per trip
 
   // Active Task
   const activeOrder = myOrders.find(o => o.status === 'delivering' || o.status === 'ready');
@@ -116,7 +115,7 @@ export default function DeliveryView({ currentUser }) {
           </div>
           <div className="metric-details">
             <h4>Total Earnings</h4>
-            <div className="metric-value" id="delivery-stats-earnings">${totalEarnings.toFixed(2)}</div>
+            <div className="metric-value" id="delivery-stats-earnings">₹{totalEarnings.toFixed(2)}</div>
           </div>
         </div>
         <div className="metric-card">
@@ -219,7 +218,7 @@ export default function DeliveryView({ currentUser }) {
                     <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem', margin: '0 0.25rem' }}>from</span> 
                     <strong>{job.shop_name}</strong>
                   </div>
-                  <div style={{ fontWeight: 700, color: 'var(--secondary)' }}>Payout: $5.00</div>
+                  <div style={{ fontWeight: 700, color: 'var(--secondary)' }}>Payout: ₹50.00</div>
                 </div>
                 <div className="mt-4" style={{ fontSize: '0.9rem', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '1rem' }}>
                   <div>Deliver to: <strong>{job.address}</strong></div>

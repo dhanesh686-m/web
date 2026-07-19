@@ -30,6 +30,7 @@ const userSchema = new mongoose.Schema({
   password: { type: String, required: true },
   name: { type: String, required: true },
   role: { type: String, required: true },
+  phone: { type: String, required: true },
   status: { type: String, default: 'active' }
 });
 
@@ -67,7 +68,7 @@ const orderSchema = new mongoose.Schema({
   shop_id: { type: String, ref: 'Shop', required: true },
   shop_name: { type: String, required: true },
   subtotal: { type: Number, required: true },
-  delivery_fee: { type: Number, default: 3.50 },
+  delivery_fee: { type: Number, default: 50.00 },
   total: { type: Number, required: true },
   address: { type: String, required: true },
   status: { type: String, required: true }, // pending, preparing, ready, delivering, delivered
@@ -77,27 +78,48 @@ const orderSchema = new mongoose.Schema({
   items: [orderItemSchema]
 });
 
+const smsLogSchema = new mongoose.Schema({
+  to: { type: String, required: true },
+  message: { type: String, required: true },
+  timestamp: { type: Date, default: Date.now }
+});
+
 const User = mongoose.model('User', userSchema);
 const Shop = mongoose.model('Shop', shopSchema);
 const Item = mongoose.model('Item', itemSchema);
 const Order = mongoose.model('Order', orderSchema);
+const SmsLog = mongoose.model('SmsLog', smsLogSchema);
+
+// SMS Logging Helper
+async function sendSMS(to, message) {
+  console.log(`\n==================================================`);
+  console.log(`[SMS OUTBOX] TO: ${to}`);
+  console.log(`MESSAGE: "${message}"`);
+  console.log(`==================================================\n`);
+  try {
+    const log = new SmsLog({ to, message });
+    await log.save();
+  } catch (err) {
+    console.error('Error saving SMS log:', err);
+  }
+}
 
 // Database Seeding Logic
 async function initDb() {
   try {
     const userCount = await User.countDocuments();
     if (userCount === 0) {
-      console.log('Seeding initial MongoDB mock data...');
+      console.log('Seeding initial MongoDB mock data (INR and Phone numbers)...');
 
       // 1. Seed Users
       const mockUsers = [
-        { _id: "u-admin", email: "admin@swiftdrop.com", password: "admin123", name: "System Admin", role: "admin", status: "active" },
-        { _id: "u-grocer", email: "grocer@swiftdrop.com", password: "pass123", name: "Arthur Dent", role: "shopkeeper", status: "active" },
-        { _id: "u-chef", email: "chef@swiftdrop.com", password: "pass123", name: "Chef Ramsay", role: "shopkeeper", status: "active" },
-        { _id: "u-pharma", email: "pharma@swiftdrop.com", password: "pass123", name: "Dr. Elizabeth", role: "shopkeeper", status: "active" },
-        { _id: "u-rider1", email: "rider1@swiftdrop.com", password: "pass123", name: "Speedy Gonzalez", role: "delivery", status: "active" },
-        { _id: "u-rider2", email: "rider2@swiftdrop.com", password: "pass123", name: "Flash Gordon", role: "delivery", status: "active" },
-        { _id: "u-customer", email: "customer@swiftdrop.com", password: "pass123", name: "Alice Cooper", role: "customer", status: "active" }
+        { _id: "u-admin", email: "admin@swiftdrop.com", password: "admin123", name: "System Admin", role: "admin", phone: "+919999999999", status: "active" },
+        { _id: "u-grocer", email: "grocer@swiftdrop.com", password: "pass123", name: "Arthur Dent", role: "shopkeeper", phone: "+919876543210", status: "active" },
+        { _id: "u-chef", email: "chef@swiftdrop.com", password: "pass123", name: "Chef Ramsay", role: "shopkeeper", phone: "+919876543211", status: "active" },
+        { _id: "u-pharma", email: "pharma@swiftdrop.com", password: "pass123", name: "Dr. Elizabeth", role: "shopkeeper", phone: "+919876543212", status: "active" },
+        { _id: "u-rider1", email: "rider1@swiftdrop.com", password: "pass123", name: "Speedy Gonzalez", role: "delivery", phone: "+919876543213", status: "active" },
+        { _id: "u-rider2", email: "rider2@swiftdrop.com", password: "pass123", name: "Flash Gordon", role: "delivery", phone: "+919876543214", status: "active" },
+        { _id: "u-customer", email: "customer@swiftdrop.com", password: "pass123", name: "Alice Cooper", role: "customer", phone: "+919876543215", status: "active" }
       ];
       await User.insertMany(mockUsers);
 
@@ -110,25 +132,25 @@ async function initDb() {
       ];
       await Shop.insertMany(mockShops);
 
-      // 3. Seed Items
+      // 3. Seed Items (INR Prices)
       const mockItems = [
         // FreshMart
-        { _id: "i-avocado", shop_id: "s-freshmart", name: "Organic Hass Avocados", description: "Ripe, creamy, and loaded with healthy nutrients. Pack of 2.", price: 4.99, quantity: 45, image: "https://images.unsplash.com/photo-1523049673857-eb18f1d7b578?auto=format&fit=crop&q=80&w=300" },
-        { _id: "i-milk", shop_id: "s-freshmart", name: "Whole Farm Milk 1L", description: "Organic full cream milk pasteurized from pasture-fed cows.", price: 2.49, quantity: 80, image: "https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&q=80&w=300" },
-        { _id: "i-sourdough", shop_id: "s-freshmart", name: "Artisanal Sourdough Bread", description: "Freshly baked sourdough loaf with a crispy crust and soft airy crumb.", price: 3.80, quantity: 15, image: "https://images.unsplash.com/photo-1549931319-a545dcf3bc73?auto=format&fit=crop&q=80&w=300" },
+        { _id: "i-avocado", shop_id: "s-freshmart", name: "Organic Hass Avocados", description: "Ripe, creamy, and loaded with healthy nutrients. Pack of 2.", price: 299.00, quantity: 45, image: "https://images.unsplash.com/photo-1523049673857-eb18f1d7b578?auto=format&fit=crop&q=80&w=300" },
+        { _id: "i-milk", shop_id: "s-freshmart", name: "Whole Farm Milk 1L", description: "Organic full cream milk pasteurized from pasture-fed cows.", price: 65.00, quantity: 80, image: "https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&q=80&w=300" },
+        { _id: "i-sourdough", shop_id: "s-freshmart", name: "Artisanal Sourdough Bread", description: "Freshly baked sourdough loaf with a crispy crust and soft airy crumb.", price: 120.00, quantity: 15, image: "https://images.unsplash.com/photo-1549931319-a545dcf3bc73?auto=format&fit=crop&q=80&w=300" },
         
         // Burger Fusion
-        { _id: "i-truffleburger", shop_id: "s-burgerfusion", name: "Double Truffle Burger", description: "Two flame-grilled beef patties, white cheddar cheese, and black truffle aioli.", price: 12.99, quantity: 30, image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&q=80&w=300" },
-        { _id: "i-cajunfries", shop_id: "s-burgerfusion", name: "Spicy Cajun Fries", description: "Crispy skin-on potato fries tossed in our signature Cajun spice mix.", price: 4.50, quantity: 100, image: "https://images.unsplash.com/photo-1573080496219-bb080dd4f877?auto=format&fit=crop&q=80&w=300" },
-        { _id: "i-caramelshake", shop_id: "s-burgerfusion", name: "Salted Caramel Shake", description: "Creamy vanilla bean ice cream blended with homemade salted caramel sauce.", price: 6.00, quantity: 25, image: "https://images.unsplash.com/photo-1579954115545-a95591f28bfc?auto=format&fit=crop&q=80&w=300" },
+        { _id: "i-truffleburger", shop_id: "s-burgerfusion", name: "Double Truffle Burger", description: "Two flame-grilled beef patties, white cheddar cheese, and black truffle aioli.", price: 499.00, quantity: 30, image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&q=80&w=300" },
+        { _id: "i-cajunfries", shop_id: "s-burgerfusion", name: "Spicy Cajun Fries", description: "Crispy skin-on potato fries tossed in our signature Cajun spice mix.", price: 140.00, quantity: 100, image: "https://images.unsplash.com/photo-1573080496219-bb080dd4f877?auto=format&fit=crop&q=80&w=300" },
+        { _id: "i-caramelshake", shop_id: "s-burgerfusion", name: "Salted Caramel Shake", description: "Creamy vanilla bean ice cream blended with homemade salted caramel sauce.", price: 180.00, quantity: 25, image: "https://images.unsplash.com/photo-1579954115545-a95591f28bfc?auto=format&fit=crop&q=80&w=300" },
 
         // Medicare Plus
-        { _id: "i-vitaminc", shop_id: "s-medicare", name: "Vitamin C Tablets 90pk", description: "Supports healthy immune function. 1000mg chewable tablets.", price: 15.99, quantity: 50, image: "https://images.unsplash.com/photo-1616679911721-fe6eec18fcd5?auto=format&fit=crop&q=80&w=300" },
-        { _id: "i-firstaid", shop_id: "s-medicare", name: "Pocket First Aid Kit", description: "Contains bandages, antiseptic wipes, gauze pads, and medical tape.", price: 8.99, quantity: 12, image: "https://images.unsplash.com/photo-1603398938378-e54eab446dde?auto=format&fit=crop&q=80&w=300" },
+        { _id: "i-vitaminc", shop_id: "s-medicare", name: "Vitamin C Tablets 90pk", description: "Supports healthy immune function. 1000mg chewable tablets.", price: 550.00, quantity: 50, image: "https://images.unsplash.com/photo-1616679911721-fe6eec18fcd5?auto=format&fit=crop&q=80&w=300" },
+        { _id: "i-firstaid", shop_id: "s-medicare", name: "Pocket First Aid Kit", description: "Contains bandages, antiseptic wipes, gauze pads, and medical tape.", price: 350.00, quantity: 12, image: "https://images.unsplash.com/photo-1603398938378-e54eab446dde?auto=format&fit=crop&q=80&w=300" },
 
         // Sugar Bliss
-        { _id: "i-redvelvet", shop_id: "s-sugarbliss", name: "Red Velvet Cake Slice", description: "Rich layers of cocoa red velvet cake with velvety cream cheese frosting.", price: 5.50, quantity: 20, image: "https://images.unsplash.com/photo-1616031037011-08ad40013136?auto=format&fit=crop&q=80&w=300" },
-        { _id: "i-croissant", shop_id: "s-sugarbliss", name: "Almond Butter Croissant", description: "Flaky butter pastry baked with sweet frangipane almond cream.", price: 3.75, quantity: 40, image: "https://images.unsplash.com/photo-1555507036-ab1f4038808a?auto=format&fit=crop&q=80&w=300" }
+        { _id: "i-redvelvet", shop_id: "s-sugarbliss", name: "Red Velvet Cake Slice", description: "Rich layers of cocoa red velvet cake with velvety cream cheese frosting.", price: 199.00, quantity: 20, image: "https://images.unsplash.com/photo-1616031037011-08ad40013136?auto=format&fit=crop&q=80&w=300" },
+        { _id: "i-croissant", shop_id: "s-sugarbliss", name: "Almond Butter Croissant", description: "Flaky butter pastry baked with sweet frangipane almond cream.", price: 110.00, quantity: 40, image: "https://images.unsplash.com/photo-1555507036-ab1f4038808a?auto=format&fit=crop&q=80&w=300" }
       ];
       await Item.insertMany(mockItems);
 
@@ -157,6 +179,7 @@ app.post('/api/auth/login', async (req, res) => {
       email: user.email,
       name: user.name,
       role: user.role,
+      phone: user.phone,
       status: user.status
     });
   } catch (err) {
@@ -165,10 +188,10 @@ app.post('/api/auth/login', async (req, res) => {
 });
 
 app.post('/api/auth/signup', async (req, res) => {
-  const { name, email, password, role } = req.body;
+  const { name, email, password, role, phone } = req.body;
   const cleanedEmail = (email || '').trim().toLowerCase();
 
-  if (!name || !cleanedEmail || !password) {
+  if (!name || !cleanedEmail || !password || !phone) {
     return res.status(400).json({ error: 'Missing required fields' });
   }
 
@@ -185,6 +208,7 @@ app.post('/api/auth/signup', async (req, res) => {
       password,
       name: name.trim(),
       role: role || 'customer',
+      phone: phone.trim(),
       status: 'active'
     });
     await user.save();
@@ -209,6 +233,7 @@ app.post('/api/auth/signup', async (req, res) => {
       email: user.email,
       name: user.name,
       role: user.role,
+      phone: user.phone,
       status: user.status
     });
   } catch (err) {
@@ -377,7 +402,7 @@ app.post('/api/orders', async (req, res) => {
     let subtotal = 0.0;
     const dbItems = [];
 
-    // Check quantities and deduct stock in a loop
+    // Check quantities and deduct stock
     for (const cartItem of cartItems) {
       const dbItem = await Item.findOne({ _id: cartItem.itemId, shop_id: shopId });
       if (!dbItem) {
@@ -408,17 +433,17 @@ app.post('/api/orders', async (req, res) => {
       });
     }
 
-    const deliveryFee = 3.50;
+    const deliveryFee = 50.00; // ₹50.00 Flat rate delivery fee
     const total = subtotal + deliveryFee;
     
-    // Formatting time similar to server.py
+    // Formatting time
     const formatTime = () => {
       const now = new Date();
       let hours = now.getHours();
       let minutes = now.getMinutes();
       const ampm = hours >= 12 ? 'PM' : 'AM';
       hours = hours % 12;
-      hours = hours ? hours : 12; // 0 should be 12
+      hours = hours ? hours : 12;
       minutes = minutes < 10 ? '0' + minutes : minutes;
       return `${hours}:${minutes} ${ampm}, Today`;
     };
@@ -441,6 +466,16 @@ app.post('/api/orders', async (req, res) => {
     });
 
     await order.save();
+
+    // Trigger SMS to Shopowner
+    const shopkeeper = await User.findById(shop.owner_id);
+    if (shopkeeper && shopkeeper.phone) {
+      await sendSMS(
+        shopkeeper.phone, 
+        `[QuickShopp] New order received! Order ID: ${orderId.toUpperCase()}. Total Amount: ₹${total.toFixed(2)}. Log in to your Shop Console to accept.`
+      );
+    }
+
     res.status(201).json({ success: true, orderId });
   } catch (err) {
     res.status(400).json({ error: err.message });
@@ -526,6 +561,33 @@ app.patch('/api/orders/:orderId', async (req, res) => {
 
       order.status = nextStatus;
       await order.save();
+
+      // Trigger SMS notifications for merchants
+      const customer = await User.findById(order.customer_id);
+      if (customer && customer.phone) {
+        if (nextStatus === 'preparing') {
+          await sendSMS(
+            customer.phone,
+            `[QuickShopp] Your order ${orderId.toUpperCase()} from ${order.shop_name} has been accepted and is now PREPARING.`
+          );
+        } else if (nextStatus === 'ready') {
+          await sendSMS(
+            customer.phone,
+            `[QuickShopp] Your order ${orderId.toUpperCase()} is READY! A courier is being assigned to deliver it to you.`
+          );
+
+          // Alert active riders over SMS
+          const riders = await User.find({ role: 'delivery', status: 'active' });
+          for (const rider of riders) {
+            if (rider.phone) {
+              await sendSMS(
+                rider.phone,
+                `[QuickShopp] New Delivery Job! Order ${orderId.toUpperCase()} from ${order.shop_name} is ready for pick-up. Earn ₹50.00 upon delivery. Log in to claim!`
+              );
+            }
+          }
+        }
+      }
     } else if (user.role === 'delivery') {
       if (nextStatus === 'delivering' && !order.delivery_boy_id) {
         // Accept ready job
@@ -533,9 +595,33 @@ app.patch('/api/orders/:orderId', async (req, res) => {
         order.delivery_boy_id = userId;
         order.delivery_boy_name = user.name;
         await order.save();
+
+        // Alert customer that rider claimed it
+        const customer = await User.findById(order.customer_id);
+        if (customer && customer.phone) {
+          await sendSMS(
+            customer.phone,
+            `[QuickShopp] Courier rider ${user.name} is arriving at the store to pick up your order ${orderId.toUpperCase()}.`
+          );
+        }
       } else if (['delivering', 'delivered'].includes(nextStatus) && order.delivery_boy_id === userId) {
         order.status = nextStatus;
         await order.save();
+
+        const customer = await User.findById(order.customer_id);
+        if (customer && customer.phone) {
+          if (nextStatus === 'delivering') {
+            await sendSMS(
+              customer.phone,
+              `[QuickShopp] Your order ${orderId.toUpperCase()} is OUT FOR DELIVERY! Rider ${user.name} is bringing it to your address.`
+            );
+          } else if (nextStatus === 'delivered') {
+            await sendSMS(
+              customer.phone,
+              `[QuickShopp] Success! Your order ${orderId.toUpperCase()} has been DELIVERED by ${user.name}. Enjoy your purchase!`
+            );
+          }
+        }
       } else {
         return res.status(403).json({ error: 'Unauthorized to modify delivery details' });
       }
@@ -608,6 +694,7 @@ app.get('/api/admin/users', async (req, res) => {
         name: u.name,
         email: u.email,
         role: u.role,
+        phone: u.phone,
         status: u.status,
         shopName
       });
@@ -648,7 +735,24 @@ app.patch('/api/admin/users/:targetUserId', async (req, res) => {
   }
 });
 
-// Serve frontend SPA index for any non-API GET requests (supports client-side routing)
+// REST API - SMS LOGS (FREE SIMULATION)
+app.get('/api/sms-logs', async (req, res) => {
+  const { phone } = req.query;
+  try {
+    let query = {};
+    if (phone) {
+      // Return logs matching this exact number
+      query = { to: phone };
+    }
+    // Return newest 15 messages
+    const logs = await SmsLog.find(query).sort({ timestamp: -1 }).limit(15);
+    res.json(logs);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Serve frontend SPA index for any non-API GET requests
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
 });
