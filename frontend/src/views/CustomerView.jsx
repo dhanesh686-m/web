@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { apiCall } from '../api/client';
 
 export default function CustomerView() {
+  const [activeMobileTab, setActiveMobileTab] = useState('browse'); // 'browse', 'cart', 'orders'
   const [shops, setShops] = useState([]);
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [selectedShop, setSelectedShop] = useState(null);
@@ -169,10 +170,10 @@ export default function CustomerView() {
     <section id="customer-view" className="view-section active">
       <div className="customer-layout">
         {/* Left panel: Shops & Shop items */}
-        <div className="customer-main">
+        <div className={`customer-main ${activeMobileTab === 'cart' ? 'mobile-hidden' : ''}`}>
           {/* Shop List Panel */}
           {!selectedShop ? (
-            <div id="customer-shops-panel">
+            <div id="customer-shops-panel" className={activeMobileTab === 'browse' ? '' : 'mobile-hidden'}>
               <div className="category-bar">
                 <button className={`category-tab ${categoryFilter === 'all' ? 'active' : ''}`} onClick={() => setCategoryFilter('all')}>All Shops</button>
                 <button className={`category-tab ${categoryFilter === 'grocery' ? 'active' : ''}`} onClick={() => setCategoryFilter('grocery')}>Grocery</button>
@@ -222,7 +223,7 @@ export default function CustomerView() {
             </div>
           ) : (
             /* Shop Details & Item List Panel */
-            <div id="customer-items-panel">
+            <div id="customer-items-panel" className={activeMobileTab === 'browse' ? '' : 'mobile-hidden'}>
               <button className="btn btn-outline btn-sm mb-4" onClick={handleBackToShops}>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                   strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -314,7 +315,7 @@ export default function CustomerView() {
           )}
 
           {/* Customer Orders List */}
-          <div className="orders-section">
+          <div className={`orders-section ${activeMobileTab === 'orders' ? '' : 'mobile-hidden'}`}>
             <h2 className="section-title">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--primary)"
                 strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -449,7 +450,7 @@ export default function CustomerView() {
         </div>
 
         {/* Right panel: Cart Sidebar */}
-        <div className="cart-panel">
+        <div className={`cart-panel ${activeMobileTab === 'cart' ? '' : 'mobile-hidden'}`}>
           <div className="cart-header">
             <h3>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary)"
@@ -522,6 +523,54 @@ export default function CustomerView() {
             </button>
           </div>
         </div>
+      </div>
+
+      {/* Mobile Bottom Navigation Bar */}
+      <div className="mobile-nav-bar">
+        <button 
+          type="button"
+          className={`mobile-nav-tab ${activeMobileTab === 'browse' ? 'active' : ''}`}
+          onClick={() => setActiveMobileTab('browse')}
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+          </svg>
+          <span>Browse</span>
+        </button>
+        <button 
+          type="button"
+          className={`mobile-nav-tab ${activeMobileTab === 'cart' ? 'active' : ''}`}
+          onClick={() => setActiveMobileTab('cart')}
+        >
+          <div style={{ position: 'relative', display: 'inline-flex' }}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="9" cy="21" r="1"></circle>
+              <circle cx="20" cy="21" r="1"></circle>
+              <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+            </svg>
+            {cartItemCount > 0 && <span className="mobile-badge">{cartItemCount}</span>}
+          </div>
+          <span>Cart</span>
+        </button>
+        <button 
+          type="button"
+          className={`mobile-nav-tab ${activeMobileTab === 'orders' ? 'active' : ''}`}
+          onClick={() => setActiveMobileTab('orders')}
+        >
+          <div style={{ position: 'relative', display: 'inline-flex' }}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="16" y1="13" x2="8" y2="13"></line>
+              <line x1="16" y1="17" x2="8" y2="17"></line>
+            </svg>
+            {orders.filter(o => o.status !== 'delivered').length > 0 && (
+              <span className="mobile-badge warning">{orders.filter(o => o.status !== 'delivered').length}</span>
+            )}
+          </div>
+          <span>Orders</span>
+        </button>
       </div>
     </section>
   );

@@ -74,8 +74,8 @@ export default function ProductModal({ isOpen, item, onClose, onSubmit }) {
             ></textarea>
           </div>
 
-          <div className="form-row flex gap-4 w-full" style={{ display: 'flex', gap: '1rem' }}>
-            <div className="form-group flex-1" style={{ flex: 1 }}>
+          <div className="form-row">
+            <div className="form-group flex-1">
               <label htmlFor="modal-item-price">Price (₹)</label>
               <input 
                 type="number" 
@@ -88,7 +88,7 @@ export default function ProductModal({ isOpen, item, onClose, onSubmit }) {
                 required 
               />
             </div>
-            <div className="form-group flex-1" style={{ flex: 1 }}>
+            <div className="form-group flex-1">
               <label htmlFor="modal-item-qty">Inventory Qty</label>
               <input 
                 type="number" 
