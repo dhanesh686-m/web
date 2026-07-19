@@ -1369,3 +1369,23 @@ input:checked + .slider:before {
         overflow-x: auto;
     }
 }
+
+/* Active Task and Job Card Grid Responsiveness */
+.active-task-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+.job-card-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-top: 1rem;
+    font-size: 0.9rem;
+}
+@media (max-width: 768px) {
+    .active-task-grid, .job-card-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+}

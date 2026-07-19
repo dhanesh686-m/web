@@ -158,7 +158,7 @@ export default function DeliveryView({ currentUser }) {
             </span>
           </div>
           <div id="delivery-active-task-details">
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+            <div className="active-task-grid">
               <div>
                 <h4 style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', textTransform: 'uppercase' }}>Store details</h4>
                 <p style={{ fontWeight: 600, marginTop: '0.25rem' }}>{activeOrder.shop_name}</p>
@@ -220,7 +220,7 @@ export default function DeliveryView({ currentUser }) {
                   </div>
                   <div style={{ fontWeight: 700, color: 'var(--secondary)' }}>Payout: ₹50.00</div>
                 </div>
-                <div className="mt-4" style={{ fontSize: '0.9rem', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '1rem' }}>
+                <div className="job-card-grid">
                   <div>Deliver to: <strong>{job.address}</strong></div>
                   <div>Items: <span style={{ color: 'var(--text-secondary)' }}>{job.items.map(it => `${it.name} (x${it.quantity})`).join(', ')}</span></div>
                 </div>

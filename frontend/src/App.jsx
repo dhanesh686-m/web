@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Header from './components/Header';
-import SmsSimulator from './components/SmsSimulator';
+
 import AuthView from './views/AuthView';
 import CustomerView from './views/CustomerView';
 import ShopkeeperView from './views/ShopkeeperView';
@@ -66,8 +66,7 @@ export default function App() {
         {renderActiveDashboard()}
       </main>
       
-      {/* Global In-App SMS Mobile Phone Simulator for free testing */}
-      <SmsSimulator currentUser={currentUser} />
+
     </div>
   );
 }
